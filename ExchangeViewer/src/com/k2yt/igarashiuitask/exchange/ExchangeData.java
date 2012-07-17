@@ -16,14 +16,14 @@ import java.util.Map;
 public final class ExchangeData {
     private final List<Double> mPrices;
     private final List<Date> mDates;
-    private final Map<Date, Integer> mIndexOfDate;
+    private final Map<String, Integer> mIndexOfDate;
     private int mMinYear;
     private int mMaxYear;
     
     public ExchangeData(String filePath) throws IOException {
         mPrices = new ArrayList<Double>();
         mDates = new ArrayList<Date>();
-        mIndexOfDate = new HashMap<Date, Integer>();
+        mIndexOfDate = new HashMap<String, Integer>();
         mMinYear = 0;
         mMaxYear = 0;
         read(filePath);
@@ -52,19 +52,23 @@ public final class ExchangeData {
     }
     
     public Integer getFirstIndexOfYear(int y) {
-        final SimpleDateFormat fmt = new SimpleDateFormat("y/M/d");
-        try {
-            final Date d = fmt.parse(y + "/1/1");
-            return mIndexOfDate.get(d);
-        }
-        catch (ParseException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return mIndexOfDate.get(y + "/1/1");
+    }
+
+    public Integer getFirstIndexOfMonth(int y, int m) {
+        return mIndexOfDate.get(y + "/" + m + "/1");
+    }
+    
+    public Integer getIndexOfDay(int y, int m, int d) {
+        return mIndexOfDate.get(y + "/" + m + "/" + d);
+    }
+    
+    public boolean existsDay(int y, int m, int d) {
+        return mIndexOfDate.containsKey(y + "/" + m + "/" + d);
     }
     
     private void read(String filePath) throws IOException {
-        final SimpleDateFormat fmt = new SimpleDateFormat("y/M/d");
+        final SimpleDateFormat fmt = new SimpleDateFormat("yyyy/M/d");
         final BufferedReader reader = new BufferedReader(
                 new InputStreamReader(new FileInputStream(filePath)));
         reader.readLine();
@@ -84,7 +88,7 @@ public final class ExchangeData {
                 final int y = cal.get(Calendar.YEAR);
                 mMinYear = Math.min(mMinYear, y);
                 mMaxYear = Math.max(mMaxYear, y);
-                mIndexOfDate.put(d, mDates.size()-1);
+                mIndexOfDate.put(fmt.format(d), mDates.size()-1);
             }
         }
         catch (ParseException e) {

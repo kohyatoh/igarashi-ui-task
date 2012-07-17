@@ -1,23 +1,139 @@
 package com.k2yt.igarashiuitask.exchange;
 
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 
-public final class ExchangeViewerFrame extends JFrame {
+public final class ExchangeViewerFrame extends JFrame implements ActionListener, MouseListener, PinManager {
     private static final long serialVersionUID = 1L;
+    private static final int LEFT_PANE_WIDTH = 150;
     
     private final ExchangeData mData;
+    
+    private final JSplitPane mSplitPane;
+    private final JPanel mLeftPanel;
+    private final JButton mYearButton;
+    private final JButton mMonthButton;
+    private final JButton mDayButton;
+    private final JPanel mScrollPanel;
     private final ChartPanel mChartPanel;
+    private final Map<Integer, PinInfoPanel> mPinInfos;
     
     public ExchangeViewerFrame(ExchangeData data) {
         super("ExchangeViewer");
         mData = data;
-        mChartPanel = new ChartPanel(mData);
-        mChartPanel.setSize(500, 400);
-        setSize(600, 400);
+        mSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        mLeftPanel = new JPanel(new FlowLayout());
+        mYearButton = new JButton("年単位表示");
+        mMonthButton = new JButton("月単位表示");
+        mDayButton = new JButton("日単位表示");
+        mScrollPanel = new JPanel();
+        mScrollPanel.setLayout(new BoxLayout(mScrollPanel, BoxLayout.Y_AXIS));
+        mChartPanel = new ChartPanel(mData, ChartPanel.Mode.YEAR);
+        mPinInfos = new HashMap<Integer, PinInfoPanel>();
+        
+        mYearButton.addActionListener(this);
+        mMonthButton.addActionListener(this);
+        mDayButton.addActionListener(this);
+        mChartPanel.addMouseListener(this);
+        
+        JScrollPane scrollPane = new JScrollPane(mScrollPanel);
+        scrollPane.setSize(LEFT_PANE_WIDTH, 0);
+        mScrollPanel.add(new JLabel("右クリックで追加"));
+        mLeftPanel.setMinimumSize(new Dimension(0, 0));
+        mLeftPanel.add(mYearButton);
+        mLeftPanel.add(mMonthButton);
+        mLeftPanel.add(mDayButton);
+        mLeftPanel.add(scrollPane);
+        mSplitPane.setLeftComponent(mLeftPanel);
+        mSplitPane.setRightComponent(mChartPanel);
+        mSplitPane.setDividerLocation(LEFT_PANE_WIDTH);
+        getContentPane().add(mSplitPane);
+        
+        setSize(1000, 400);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        getContentPane().add(mChartPanel);
+        setMode(ChartPanel.Mode.YEAR);
+    }
+    
+    private void setMode(ChartPanel.Mode mode) {
+        mChartPanel.setMode(mode);
+        mYearButton.setEnabled(true);
+        mMonthButton.setEnabled(true);
+        mDayButton.setEnabled(true);
+        if (mode == ChartPanel.Mode.YEAR) mYearButton.setEnabled(false);
+        if (mode == ChartPanel.Mode.MONTH) mMonthButton.setEnabled(false);
+        if (mode == ChartPanel.Mode.DAY) mDayButton.setEnabled(false);
+    }
+    
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+        if (ae.getSource() == mYearButton) {
+            setMode(ChartPanel.Mode.YEAR);
+        }
+        else if (ae.getSource() == mMonthButton) {
+            setMode(ChartPanel.Mode.MONTH);
+        }
+        else if (ae.getSource() == mDayButton) {
+            setMode(ChartPanel.Mode.DAY);
+        }
+    }
+    
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON3) {
+            final int index = mChartPanel.getIndexFromX(e.getX(), true);
+            addPin(index);
+        }
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    @Override
+    public void addPin(int index) {
+        final PinInfoPanel pinInfoPanel = new PinInfoPanel(mData, index);
+        pinInfoPanel.setPinManager(this);
+        mChartPanel.addPin(index);
+        mScrollPanel.add(pinInfoPanel, 0);
+        mPinInfos.put(index, pinInfoPanel);
+        validate();
+        repaint();
+    }
+
+    @Override
+    public void removePin(int index) {
+        mChartPanel.removePin(index);
+        mScrollPanel.remove(mPinInfos.get(index));
+        mPinInfos.remove(index);
+        validate();
+        repaint();
     }
     
     public static void main(String[] args) {
