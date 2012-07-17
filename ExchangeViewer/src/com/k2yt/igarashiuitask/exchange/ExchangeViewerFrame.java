@@ -4,8 +4,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
-public final class ExchangeViewerFrame extends JFrame implements ActionListener, MouseListener, PinManager {
+public final class ExchangeViewerFrame extends JFrame implements ActionListener, PinManager {
     private static final long serialVersionUID = 1L;
     private static final int LEFT_PANE_WIDTH = 150;
     
@@ -49,7 +47,6 @@ public final class ExchangeViewerFrame extends JFrame implements ActionListener,
         mYearButton.addActionListener(this);
         mMonthButton.addActionListener(this);
         mDayButton.addActionListener(this);
-        mChartPanel.addMouseListener(this);
         
         JScrollPane scrollPane = new JScrollPane(mScrollPanel);
         scrollPane.setSize(LEFT_PANE_WIDTH, 0);
@@ -60,6 +57,7 @@ public final class ExchangeViewerFrame extends JFrame implements ActionListener,
         mLeftPanel.add(mDayButton);
         mLeftPanel.add(scrollPane);
         mSplitPane.setLeftComponent(mLeftPanel);
+        mChartPanel.setPinManager(this);
         mSplitPane.setRightComponent(mChartPanel);
         mSplitPane.setDividerLocation(LEFT_PANE_WIDTH);
         getContentPane().add(mSplitPane);
@@ -71,12 +69,6 @@ public final class ExchangeViewerFrame extends JFrame implements ActionListener,
     
     private void setMode(ChartPanel.Mode mode) {
         mChartPanel.setMode(mode);
-        mYearButton.setEnabled(true);
-        mMonthButton.setEnabled(true);
-        mDayButton.setEnabled(true);
-        if (mode == ChartPanel.Mode.YEAR) mYearButton.setEnabled(false);
-        if (mode == ChartPanel.Mode.MONTH) mMonthButton.setEnabled(false);
-        if (mode == ChartPanel.Mode.DAY) mDayButton.setEnabled(false);
     }
     
     @Override
@@ -92,30 +84,6 @@ public final class ExchangeViewerFrame extends JFrame implements ActionListener,
         }
     }
     
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON3) {
-            final int index = mChartPanel.getIndexFromX(e.getX(), true);
-            addPin(index);
-        }
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-    }
-
     @Override
     public void addPin(int index) {
         final PinInfoPanel pinInfoPanel = new PinInfoPanel(mData, index);
