@@ -20,7 +20,11 @@
 
     <target name="build" depends="compile">
         <jar jarfile="${build.dir}/exchangeviewer.jar"
-             basedir="${build.dir}/classes"/>
+             basedir="${build.dir}/classes">
+             <manifest>
+                 <attribute name="Main-Class" value="com.k2yt.igarashiuitask.exchange.ExchangeViewerFrame"/>
+             </manifest>
+        </jar>
     </target>
 	
     <target name="all" depends="build">
