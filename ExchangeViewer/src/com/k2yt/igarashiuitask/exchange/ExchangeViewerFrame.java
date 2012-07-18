@@ -18,7 +18,9 @@ import javax.swing.JSplitPane;
 
 public final class ExchangeViewerFrame extends JFrame implements ActionListener, PinManager {
     private static final long serialVersionUID = 1L;
-    private static final int LEFT_PANE_WIDTH = 150;
+    private static final int WIDTH = 1200;
+    private static final int HEIGHT = 600;
+    private static final int LEFT_PANE_WIDTH = 180;
     
     private final ExchangeData mData;
     
@@ -49,8 +51,11 @@ public final class ExchangeViewerFrame extends JFrame implements ActionListener,
         mDayButton.addActionListener(this);
         
         JScrollPane scrollPane = new JScrollPane(mScrollPanel);
-        scrollPane.setSize(LEFT_PANE_WIDTH, 0);
-        mScrollPanel.add(new JLabel("右クリックで追加"));
+        scrollPane.setPreferredSize(new Dimension(LEFT_PANE_WIDTH, HEIGHT-160));
+        JPanel labelPanel = new JPanel();
+        labelPanel.add(new JLabel("右クリックで追加"));
+        mScrollPanel.add(labelPanel);
+        mScrollPanel.setMaximumSize(new Dimension(LEFT_PANE_WIDTH, Short.MAX_VALUE));
         mLeftPanel.setMinimumSize(new Dimension(0, 0));
         mLeftPanel.add(mYearButton);
         mLeftPanel.add(mMonthButton);
@@ -62,9 +67,10 @@ public final class ExchangeViewerFrame extends JFrame implements ActionListener,
         mSplitPane.setDividerLocation(LEFT_PANE_WIDTH);
         getContentPane().add(mSplitPane);
         
-        setSize(1000, 400);
+        setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setMode(ChartPanel.Mode.YEAR);
+        mChartPanel.setCenterIndex(mData.size() / 2);
     }
     
     private void setMode(ChartPanel.Mode mode) {
@@ -86,6 +92,7 @@ public final class ExchangeViewerFrame extends JFrame implements ActionListener,
     
     @Override
     public void addPin(int index) {
+        if (mPinInfos.containsKey(index)) return ;
         final PinInfoPanel pinInfoPanel = new PinInfoPanel(mData, index);
         pinInfoPanel.setPinManager(this);
         mChartPanel.addPin(index);

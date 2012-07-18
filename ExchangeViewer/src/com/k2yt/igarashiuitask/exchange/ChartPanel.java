@@ -1,7 +1,9 @@
 package com.k2yt.igarashiuitask.exchange;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -47,13 +49,13 @@ public final class ChartPanel extends JPanel implements MouseListener, MouseMoti
         mCenterIndex = 0;
         mMouseLastX = -1;
         mPopupMenu = new JPopupMenu();
-        mPopupMenu.add(new MenuItemAction("add pin") {
+        mPopupMenu.add(new MenuItemAction("マークを追加") {
             public void actionPerformed(ActionEvent e) { onMenuAddPin(e); }
         });
-        mPopupMenu.add(new MenuItemAction("zoom in") {
+        mPopupMenu.add(new MenuItemAction("拡大") {
             public void actionPerformed(ActionEvent e) { onMenuZoomIn(e); }
         });
-        mPopupMenu.add(new MenuItemAction("zoom out") {
+        mPopupMenu.add(new MenuItemAction("縮小") {
             public void actionPerformed(ActionEvent e) { onMenuZoomOut(e); }
         });
         addMouseListener(this);
@@ -86,6 +88,10 @@ public final class ChartPanel extends JPanel implements MouseListener, MouseMoti
 
     public void setPinManager(PinManager pinManager) {
         mPinManager = pinManager;
+    }
+    
+    public void setCenterIndex(int index) {
+        mCenterIndex = index;
     }
     
     private int getIndexFromX(int x, boolean hasValue) {
@@ -148,7 +154,7 @@ public final class ChartPanel extends JPanel implements MouseListener, MouseMoti
             final int index = mData.getFirstIndexOfYear(y);
             final int x = getXFromIndex(index);
             g.setColor(Color.gray);
-            g.drawString(y + "年", x, getHeight()-15);
+            g.drawString(y + "年", x, getHeight() - 26);
             g.setColor(Color.lightGray);
             g.drawLine(x, 0, x, getHeight());
         }
@@ -159,22 +165,30 @@ public final class ChartPanel extends JPanel implements MouseListener, MouseMoti
                 final int index = mData.getFirstIndexOfMonth(y, m);
                 final int x = getXFromIndex(index);
                 g.setColor(Color.gray);
-                g.drawString(m + "月", x, getHeight()-8);
+                g.drawString(m + "月", x, getHeight() - 12);
                 g.setColor(Color.lightGray);
                 g.drawLine(x, 0, x, getHeight());
             }
         }
         if (mInterval < 16) return;
+        final BasicStroke basicStroke = new BasicStroke();
+        final BasicStroke dashStroke = new BasicStroke(
+                1.0f, BasicStroke.JOIN_ROUND, BasicStroke.CAP_BUTT,
+                1.0f, new float[] {10.0f, 10.0f}, 0.0f);
         for (int y = mData.minYear(); y <= mData.maxYear(); y++) {
             for (int m = 1; m <= 12; m++) {
-                for (int d = 5; d <= 30; d += 5) {
+                for (int d = 5; d <= 31; d += 5) {
                     if (mData.existsDay(y, m, d) == false) continue;
                     final int index = mData.getIndexOfDay(y, m, d);
                     final int x = getXFromIndex(index);
+                    if (x < -30 || x > getWidth() + 30) continue;
                     g.setColor(Color.gray);
-                    g.drawString(d + "日", x, getHeight()-8);
+                    final int strY = getHeight() - 2;
+                    g.drawString(d + "日", x, strY);
+                    ((Graphics2D)g).setStroke(dashStroke);
                     g.setColor(Color.lightGray);
                     g.drawLine(x, 0, x, getHeight());
+                    ((Graphics2D)g).setStroke(basicStroke);
                 }
             }
         }
@@ -210,8 +224,8 @@ public final class ChartPanel extends JPanel implements MouseListener, MouseMoti
         final int x = getXFromIndex(curIndex);
         final int y = getYFromValue(mData.getPrice(curIndex));
         g.setColor(Color.blue);
-        g.drawString(fmt.format(mData.getDate(curIndex)), x - 80, getHeight() - 30);
-        g.drawString(mData.getPrice(curIndex) + "円/ドル", x, getHeight() - 30);
+        g.drawString(fmt.format(mData.getDate(curIndex)), x - 80, getHeight() - 50);
+        g.drawString(mData.getPrice(curIndex) + "円/ドル", x, getHeight() - 50);
         g.fillOval(x-3, y-3, 7, 7);
     }
     
