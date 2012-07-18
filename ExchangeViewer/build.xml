@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="exchangeviewer" default="all" basedir=".">
+    <description>ExchangeViewer</description>
+
+    <property name="src.dir" location="src"/>
+    <property name="build.dir" location="build"/>
+
+    <target name="init">
+        <mkdir dir="${build.dir}"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <mkdir dir="${build.dir}/classes"/>
+        <javac srcdir="${src.dir}"
+            destdir="${build.dir}/classes"
+            includeantruntime="false"
+            debug="true"
+        />
+    </target>
+
+    <target name="build" depends="compile">
+        <jar jarfile="${build.dir}/exchangeviewer.jar"
+             basedir="${build.dir}/classes"/>
+    </target>
+	
+    <target name="all" depends="build">
+    </target>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+</project>
