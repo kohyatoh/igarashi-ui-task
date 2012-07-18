@@ -74,7 +74,7 @@ public final class ChartPanel extends JPanel implements MouseListener, MouseMoti
     public void setMode(Mode mode) {
         switch (mode) {
         case YEAR:
-            mInterval = 0.25;
+            mInterval = 0.125;
             break;
         case MONTH:
             mInterval = 2;
@@ -206,7 +206,7 @@ public final class ChartPanel extends JPanel implements MouseListener, MouseMoti
                 final int xj = getXFromIndex(j);
                 final int yj = getYFromValue(mData.getPrice(j));
                 if (xj < Short.MIN_VALUE || xj > Short.MAX_VALUE) continue;
-                if (mInterval > 10) g.fillOval(xi-2, yi-2, 5, 5);
+                if (mInterval >= 4) g.fillOval(xi-2, yi-2, 5, 5);
                 if (mPinned.contains(i)) {
                     g.setColor(Color.red);
                     g.fillOval(xi-3, yi-3, 7, 7);
