@@ -140,6 +140,8 @@ public final class ChartPanel extends JPanel implements MouseListener, MouseMoti
     }
 
     private void paintFrame(Graphics g) {
+        g.setColor(Color.lightGray);
+        g.fillOval(getWidth() / 2 - 1, 1, 3, 3);
         for (int v = mMinValue / 10 * 10; v <= mMaxValue; v += 10) {
             final int y = getYFromValue(v);
             if (y > 30 && y < getHeight() - 30) {
